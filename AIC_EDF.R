@@ -7,6 +7,11 @@
 #============================================
 library(TMB)
 source("calculate_EDF.R")
+
+
+TMB::compile('Ricker_thorson.cpp')
+dyn.load(dynlib('Ricker_thorson'))
+
 #load in simulated data
 thdat<-list()
 thdat$obs_S = c(12505.126, 20111.116, 172686.610, 71920.143, 12651.322, 21015.153,
@@ -37,9 +42,6 @@ Map$ln_sigB = factor(NA)
 Map$epsB_t = factor( rep(NA,length(thparams$epsB_t)) )
 
 
-TMB::compile('Ricker_thorson.cpp')
-dyn.load(dynlib('Ricker_thorson'))
-
 
 
 objth <- TMB::MakeADFun(data = thdat, 
@@ -49,7 +51,7 @@ objth <- TMB::MakeADFun(data = thdat,
       DLL = "Ricker_thorson")
 
  
-objth$env$beSilent()
+#objth$env$beSilent()
 nonvariance_fixed_effects = c("alpha","beta")
 
   # Optimize first time
@@ -65,7 +67,7 @@ EDF10 = calculate_EDF(  obj=fit10$Obj,
           nonvariance_fixed_effects=fit10$nonvariance_fixed_effects,
           prediction_name = "yhat_t",
           data_name = "obs_logRS",
-          delta = 0.001,
+          delta = 0.0001,
           show_progress = FALSE,
           refit = "full")
 
